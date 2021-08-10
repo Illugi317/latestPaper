@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,14 +24,18 @@ func main() {
 	var err error
 	var url string
 
-	if len(os.Args) < 2 {
+	check_v := flag.Bool("newest", false, "Get the newest version - cannot be used with -version")
+	version_flag := flag.String("version", "", "Specify version - cannot be used with -newest")
+	flag.Parse()
+
+	if (*check_v == true) && (*version_flag == "") {
 		check_version = true
-	} else if len(os.Args) < 3 {
-		version = os.Args[1]
-		check_version = false
-	} else {
-		panic("Invalid arguments | only option is optional version 1.16.5 ect. | try latestpaper 1.17.1")
+	} else if (*check_v == true) && (*version_flag != "") {
+		panic("Invalid arguments - Newest version and version flag are being used ")
+	} else if (*check_v != true) && (*version_flag != "") {
+		version = *version_flag
 	}
+
 	if check_version {
 		version, err = getNewestVersion()
 		if err != nil {
