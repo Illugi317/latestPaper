@@ -1,5 +1,5 @@
 # latestPaper
-Simple tool to download the newest version of paper or the newest build of a specific version. 
+Simple tool to download the newest jar from paper or the newest build of a specific version. 
 usage to get the newest version:
 ```bash
 ./latestPaper -newest
