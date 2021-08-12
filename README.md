@@ -14,7 +14,7 @@ usage to get the newest version and plugins from spigotmc
 ```bash
 ./latestPaper -newest -plugin=plugin_list.txt
 ```
-Where plugin_list is one like [This](https://github.com/Illugi317/latestPaper/blob/master/plugin_list.txt)
+Where plugin_list is one like [This](https://github.com/Illugi317/latestPaper/blob/master/plugin_list.txt). Take note that when downloading plugins the program downloads the newest version of that plugin.
 This tool is not perfect. There are bugs. If you spot one - please open a issue or email me and i will try my best to fix it, currently a go noob and drowning in university :)
 
 ## Why i made this?
