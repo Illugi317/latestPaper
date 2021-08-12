@@ -22,33 +22,34 @@ func main() {
 	os.Mkdir("plugins", os.ModePerm)
 	os.Chdir("..")
 
-	//check if any params have been put
-	//var check_version bool
+	// Flag varibles
 	var download_plugins bool
 	var plugin_file string
 	var version string
-	//var err error
 	var url string
+
+	// Setting / Getting flags
 
 	check_v := flag.Bool("newest", false, "Get the newest version - cannot be used with -version")
 	version_flag := flag.String("version", "", "Specify version - cannot be used with -newest")
 	plugin_flag := flag.String("plugin", "", "file that is a list of spigot plugins to be downloaded | check the docs online for more details on how to structure the .txt file :)")
 	flag.Parse()
-
+	// Parse the flags, and validate what to do
 	if *plugin_flag != "" {
 		if _, err := os.Stat(*plugin_flag); err == nil {
-			// file exists
+			// File exists
 			download_plugins = true
 			plugin_file = *plugin_flag
 		} else if os.IsNotExist(err) {
-			// file does not exists
+			// File does not exists
 			println("File does not exist ?")
 			panic(err)
 		} else {
-			// file may or may not exist throw panic instead
+			// File may or may not exist (schrodinger's case) throw panic instead
 			panic(err)
 		}
 	} else {
+		// Plugin file string is "" then no plugin file inserted
 		download_plugins = false
 	}
 
@@ -57,18 +58,17 @@ func main() {
 	} else if (*check_v != true) && (*version_flag != "") {
 		version = *version_flag
 	}
+	// Get correct url to download the paper.jar file
 	url = getCorrectUrl(version)
-	// correct url always. good
-	fmt.Println(url)
+
 	DownloadFile("fetched/paper.jar", url) //download the paper.jar and place it in the fetched folder
-	if download_plugins == true && plugin_file != "" {
+	// If -plugin="text.txt" file flag was used so we try to download
+	if download_plugins == true {
+		fmt.Println("WARNING - since cloudflares CDN doesn't always play nice you might have difficulty downloading the plugins")
 		DownloadPlugins(plugin_file)
 	}
-	//if download_plugins {
-	//	DownloadPlugins(plugin_file)
-	//}
 
-	//download plugins
+	fmt.Println("Done!")
 }
 
 func getCorrectUrl(version string) string {
@@ -103,7 +103,7 @@ func getCorrectUrl(version string) string {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		panic("StatusCode not OK - Check if api down")
+		panic("API status code is not OK - API contact failed")
 	}
 
 	var data map[string]interface{}
@@ -145,14 +145,10 @@ func DownloadPlugins(filepath string) {
 			name = line_slice[0] + ".jar"
 		}
 		id_name_array = append(id_name_array, id_name{id, name})
-		fmt.Println(id_name_array)
 	}
-	fmt.Println("done")
 	for _, id_name := range id_name_array { //download loop
-		fmt.Println(id_name.id + " " + id_name.name)
-		// https://api.spiget.org/v2/resources/31822/download
+		// https://api.spiget.org/v2/resources/"plugin_id"/download
 		download_url := "http://api.spiget.org/v2/resources/" + id_name.id + "/download"
-		fmt.Println(download_url)
 		DownloadFile("fetched/plugins/"+id_name.name, download_url)
 	}
 
@@ -168,6 +164,7 @@ func DownloadFile(filepath string, url string) error {
 		panic(err)
 	}
 	request.Header.Set("User-Agent", "XGET/0.7") //wtf
+	request.Header.Set("Accept", "text/html")
 	resp, err := client.Do(request)
 	if err != nil {
 		return err
